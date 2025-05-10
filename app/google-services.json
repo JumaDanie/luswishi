@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "757072515055",
+    "project_id": "luswishi-65da1",
+    "storage_bucket": "luswishi-65da1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757072515055:android:a9d0fa4919cec88635301a",
+        "android_client_info": {
+          "package_name": "com.chocolate.luswishi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6TxQ33o_2hUQKjLC-_sxzW5kfKokoq7Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
