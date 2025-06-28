@@ -1,13 +1,13 @@
 package com.chocolate.luswishi;
 
 import android.view.*;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import java.util.List;
 import com.chocolate.luswishi.model.User;
+import java.util.List;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class DiscoverAdapter extends RecyclerView.Adapter<DiscoverAdapter.ViewHolder> {
     public interface OnUserClick {
@@ -34,8 +34,11 @@ public class DiscoverAdapter extends RecyclerView.Adapter<DiscoverAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User u = users.get(position);
         holder.name.setText(u.getFirstName() + " " + u.getLastName());
+
         Glide.with(holder.itemView.getContext())
                 .load(u.getProfileUrl())
+                .placeholder(R.drawable.ic_user)
+                .error(R.drawable.ic_user)
                 .into(holder.image);
 
         holder.itemView.setOnClickListener(v -> listener.onClick(u));
@@ -47,7 +50,7 @@ public class DiscoverAdapter extends RecyclerView.Adapter<DiscoverAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView image;
+        CircleImageView image;
         TextView name;
 
         public ViewHolder(@NonNull View itemView) {

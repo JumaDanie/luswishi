@@ -1,122 +1,175 @@
 package com.chocolate.luswishi;
 
 import android.os.Bundle;
-import android.view.*;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.*;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.*;
-import java.util.*;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.chocolate.luswishi.model.ChatOverview;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChatListFragment extends Fragment {
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerChats;
     private ChatListAdapter adapter;
     private List<ChatOverview> chats = new ArrayList<>();
-    private DatabaseReference overviewRef;
-    private String currentUserId;
+    private ProgressBar progressBar;
+    private LinearLayout emptyStateLayout;
+    private TextView emptyStateTextView;
+    private ListenerRegistration chatListener;
+    private DatabaseHelper dbHelper;
 
+    @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat_list, container, false);
-        recyclerView = view.findViewById(R.id.recyclerChats);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        dbHelper = new DatabaseHelper(getContext());
+        recyclerChats = view.findViewById(R.id.recyclerChats);
+        progressBar = view.findViewById(R.id.progressBar);
+        emptyStateLayout = view.findViewById(R.id.emptyStateLayout);
+        emptyStateTextView = view.findViewById(R.id.emptyStateTextView);
+
+        recyclerChats.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ChatListAdapter(chats, getContext());
-        recyclerView.setAdapter(adapter);
-
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        overviewRef = FirebaseDatabase.getInstance()
-                .getReference("chat_overviews")
-                .child(currentUserId);
-
-        loadChats();
+        recyclerChats.setAdapter(adapter);
 
         return view;
     }
 
-    private void loadChats() {
-        Log.d("ChatListFragment", "Loading chat overviews for user: " + currentUserId);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        updateUIState(true); // Show progress initially
+        loadChatOverviewsFromSQLite(); // Load initial data from SQLite
+        setupChatListener(); // Sync with Firestore
+    }
 
-        overviewRef.orderByChild("timestamp").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // Clear existing chat list and reload
-                chats.clear();
-                Log.d("ChatListFragment", "Found " + snapshot.getChildrenCount() + " chat overviews");
+    private void loadChatOverviewsFromSQLite() {
+        try {
+            chats.clear();
+            chats.addAll(dbHelper.getChatOverviews());
+            Log.d("ChatListFragment", "Loaded " + chats.size() + " chat overviews from SQLite");
+        } catch (Exception e) {
+            Log.e("ChatListFragment", "Error loading chat overviews from SQLite: " + e.getMessage());
+            chats.clear(); // Ensure UI doesn't show stale data
+        }
+        updateUIState(false);
+    }
 
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    ChatOverview chat = snap.getValue(ChatOverview.class);
-                    if (chat != null) {
-                        chats.add(chat);
-                        Log.d("ChatListFragment", "Loaded chat with user: " + chat.getUserId() + ", last message: " + chat.getLastMessage());
-                    } else {
-                        Log.w("ChatListFragment", "Skipped a null chat overview node");
+    private void setupChatListener() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        chatListener = FirebaseFirestore.getInstance()
+                .collection("chat_overviews").document(userId).collection("conversations")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        if (isAdded()) {
+                            Toast.makeText(requireContext(), "Error loading chats: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                        Log.e("ChatListFragment", "Error loading chats", e);
+                        updateUIState(false);
+                        return;
                     }
-                }
 
-                Collections.reverse(chats); // Optional: newest chats first
-                adapter.notifyDataSetChanged();
-                recyclerView.scrollToPosition(0); // Optionally scroll to the top
-
-                Log.d("ChatListFragment", "Adapter updated with " + chats.size() + " items");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("ChatListFragment", "Failed to load chats: " + error.getMessage());
-            }
-        });
-
-        // Listen for new messages and update the UI
-        overviewRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
-                // A new chat message was added
-                ChatOverview newChat = dataSnapshot.getValue(ChatOverview.class);
-                if (newChat != null) {
-                    chats.add(0, newChat); // Add the new chat at the top of the list
-                    adapter.notifyItemInserted(0); // Notify the adapter about the new item
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
-                // A chat overview has been updated (e.g., new message in an existing chat)
-                String updatedUserId = dataSnapshot.getKey();
-                if (updatedUserId != null) {
-                    // Find the chat overview in the list and update it
-                    for (int i = 0; i < chats.size(); i++) {
-                        ChatOverview chat = chats.get(i);
-                        if (chat.getUserId().equals(updatedUserId)) {
-                            ChatOverview updatedChat = dataSnapshot.getValue(ChatOverview.class);
-                            if (updatedChat != null) {
-                                chats.set(i, updatedChat); // Update the existing chat overview
-                                adapter.notifyItemChanged(i); // Notify the adapter about the updated item
+                    chats.clear();
+                    if (snapshots != null) {
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                            ChatOverview chat = doc.toObject(ChatOverview.class);
+                            if (chat != null) {
+                                if (chat.getTimestamp() == -1L) {
+                                    Log.w("ChatListFragment", "Chat with ID " + doc.getId() + " has null timestamp. Assigning current time.");
+                                    chat.setTimestamp(System.currentTimeMillis());
+                                }
+                                chat.setUserId(doc.getId());
+                                chats.add(chat);
+                                dbHelper.insertChatOverview(chat); // Sync to SQLite
+                                // Fetch and store user profile data
+                                fetchUserProfileForChat(doc.getId());
+                            } else {
+                                Log.w("ChatListFragment", "Skipping invalid chat data from document: " + doc.getId());
                             }
-                            break;
                         }
                     }
+                    Log.d("ChatListFragment", "Chats loaded from Firestore: " + chats.size());
+                    updateUIState(false);
+                });
+    }
+
+    private void fetchUserProfileForChat(String userId) {
+        DatabaseHelper.User user = dbHelper.getUser(userId);
+        if (user != null) {
+            Log.d("ChatListFragment", "User profile loaded from SQLite for userId: " + userId + ", profileImage: " + user.profileImage);
+            return;
+        }
+
+        FirebaseFirestore.getInstance().collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String firstName = documentSnapshot.getString("firstName");
+                        String lastName = documentSnapshot.getString("lastName");
+                        String profileUrl = documentSnapshot.getString("profileUrl"); // Changed to profileUrl
+                        String name = firstName != null && !firstName.isEmpty() ?
+                                firstName + (lastName != null && !lastName.isEmpty() ? " " + lastName : "") : "Unknown";
+                        dbHelper.insertUser(userId, name, profileUrl);
+                        Log.d("ChatListFragment", "Stored user profile in SQLite for userId: " + userId + ", profileUrl: " + profileUrl);
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("ChatListFragment", "Error fetching user profile for userId: " + userId + ", " + e.getMessage()));
+    }
+
+    private void updateUIState(boolean showProgress) {
+        if (isAdded()) {
+            requireActivity().runOnUiThread(() -> {
+                if (showProgress) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    recyclerChats.setVisibility(View.GONE);
+                    emptyStateLayout.setVisibility(View.GONE);
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    if (chats.isEmpty()) {
+                        recyclerChats.setVisibility(View.GONE);
+                        emptyStateLayout.setVisibility(View.VISIBLE);
+                        emptyStateTextView.setText("Start a new chat in Discover");
+                    } else {
+                        recyclerChats.setVisibility(View.VISIBLE);
+                        emptyStateLayout.setVisibility(View.GONE);
+                        adapter.notifyDataSetChanged();
+                    }
                 }
-            }
+            });
+        }
+    }
 
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                // A chat was removed (optional: handle chat removal)
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String previousChildName) {
-                // A chat overview was moved (optional: handle move)
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("ChatListFragment", "Error while listening for chat updates: " + databaseError.getMessage());
-            }
-        });
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (chatListener != null) {
+            chatListener.remove();
+        }
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
     }
 }

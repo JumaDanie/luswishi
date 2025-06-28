@@ -1,19 +1,20 @@
 package com.chocolate.luswishi;
 
-public class ChatMessage {
-    private String messageId;  // Added messageId field
+import com.chocolate.luswishi.model.MessageItem;
+
+public class ChatMessage extends MessageItem {
+    private String messageId;
     private String senderId;
     private String receiverId;
     private String text;
-    private String status;
+    private String status; // pending, sent, delivered, read
     private long timestamp;
 
-    // Default constructor required for Firebase
+    // Default constructor for Firebase
     public ChatMessage() {
-        // Firebase needs an empty constructor
     }
 
-    // Constructor to initialize the message fields
+    // Constructor to initialize fields
     public ChatMessage(String senderId, String receiverId, String text, String status, long timestamp) {
         this.senderId = senderId;
         this.receiverId = receiverId;
@@ -22,7 +23,6 @@ public class ChatMessage {
         this.timestamp = timestamp;
     }
 
-    // Getter and Setter for messageId
     public String getMessageId() {
         return messageId;
     }
@@ -31,7 +31,6 @@ public class ChatMessage {
         this.messageId = messageId;
     }
 
-    // Getters for other fields
     public String getSenderId() {
         return senderId;
     }
@@ -48,12 +47,21 @@ public class ChatMessage {
         return status;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @Override
     public long getTimestamp() {
         return timestamp;
     }
 
-    // Setter for status
-    public void setStatus(String status) {
-        this.status = status;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public int getItemType() {
+        return TYPE_MESSAGE;
     }
 }

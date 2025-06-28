@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/splash_background"
+    android:background="?attr/android:colorBackground"
     android:orientation="vertical"
     android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Replace this with your actual logo -->
     <ImageView
         android:layout_width="180dp"
         android:layout_height="180dp"
-        android:src="@drawable/app_logo"
+        android:src="@drawable/transparent_logo"
         android:contentDescription="App Logo"/>
 
     <ProgressBar

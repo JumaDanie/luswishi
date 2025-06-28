@@ -7,18 +7,57 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- NEW: App Bar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/top_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/md_theme_primary"
+        android:title="Chats"
+        android:titleTextColor="@android:color/white"
+        app:titleCentered="true"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+
     <!-- Container for Fragments -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="56dp" /> <!-- Make room for nav bar -->
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginBottom="56dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerChats"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/emptyStateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Start a new chat in Discover"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="69dp"
         android:layout_gravity="bottom"
+        android:background="@color/md_theme_primaryContainer"
+        app:itemIconTint="@color/selector_bottom_nav"
+        app:itemTextColor="@color/selector_bottom_nav"
         app:menu="@menu/bottom_nav_menu" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recyclerChats"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chat_list_fragment_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerChats"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/emptyStateLayout" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="vertical"
+        android:gravity="center" android:padding="16dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/emptyStateImage"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:src="@drawable/ic_empty_chat" android:contentDescription="No chats available"
+            /> <TextView
+        android:id="@+id/emptyStateTextView" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Start a new chat in Discover"
+        android:textSize="20sp" android:fontFamily="@font/truculenta" android:textColor="?attr/colorOnSurfaceVariant" android:gravity="center" />
+
+    </LinearLayout>
+
+</FrameLayout>

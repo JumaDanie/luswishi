@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Indigo - Primary (Dark Theme) -->
+    <color name="md_theme_primary">#7986CB</color> <!-- Indigo 300 -->
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#283593</color> <!-- Indigo 700 -->
+    <color name="md_theme_onPrimaryContainer">#C5CAE9</color> <!-- Indigo 100 -->
+
+    <!-- Indigo - Secondary (Dark Theme) -->
+    <color name="md_theme_secondary">#F48FB1</color> <!-- Pink 200 -->
+    <color name="md_theme_onSecondary">#000000</color>
+    <color name="md_theme_secondaryContainer">#AD1457</color> <!-- Pink 700 -->
+    <color name="md_theme_onSecondaryContainer">#FFCDD2</color> <!-- Pink 100 -->
+
+    <!-- Indigo - Tertiary (Dark Theme) -->
+    <color name="md_theme_tertiary">#4DD0E1</color> <!-- Cyan 300 -->
+    <color name="md_theme_onTertiary">#000000</color>
+    <color name="md_theme_tertiaryContainer">#00838F</color> <!-- Cyan 700 -->
+    <color name="md_theme_onTertiaryContainer">#E0F7FA</color> <!-- Cyan 50 -->
+
+    <!-- Error Colors (Dark Theme) -->
+    <color name="md_theme_error">#CF6679</color>
+    <color name="md_theme_onError">#000000</color>
+    <color name="md_theme_errorContainer">#B00020</color>
+    <color name="md_theme_onErrorContainer">#FCD8DF</color>
+
+    <!-- Background and Surface Colors (Dark Theme) -->
+    <color name="md_theme_background">#121212</color> <!-- Standard Dark Background -->
+    <color name="md_theme_onBackground">#E6E1E5</color>
+    <color name="md_theme_surface">#1F1F1F</color> <!-- Slightly lighter surface for cards, etc. -->
+    <color name="md_theme_onSurface">#E6E1E5</color>
+    <color name="md_theme_surfaceVariant">#303030</color>
+    <color name="md_theme_onSurfaceVariant">#CAC4D0</color>
+    <color name="md_theme_outline">#938F99</color>
+    <color name="md_theme_inverseOnSurface">#313033</color>
+    <color name="md_theme_inverseSurface">#E6E1E5</color>
+    <color name="md_theme_inversePrimary">#3F51B5</color> <!-- Dark Indigo for light surfaces -->
+    <color name="md_theme_surfaceTint">@color/md_theme_primary</color>
+
+    <!-- Text Colors for Dark Theme -->
+    <color name="textColorPrimary">#FFFFFF</color> <!-- White text for dark mode -->
+    <color name="textColorSecondary">#757575</color> <!-- Secondary text color for dark mode -->
+
+    <!-- Hint Colors for Dark Mode -->
+    <color name="textColorHint">#A8A8A8</color> <!-- Dark gray hint for dark mode -->
+
+    <!-- Time -->
+    <color name="timestamp_color">#FFFFFF</color>
+    <color name="unread_timestamp">#CFFFFFFF</color>
+</resources>

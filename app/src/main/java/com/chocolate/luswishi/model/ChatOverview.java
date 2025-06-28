@@ -1,26 +1,24 @@
 package com.chocolate.luswishi.model;
 
 public class ChatOverview {
-    private String userId;
-    private String userName;      // Full name directly from database
+    private String userId; // This will be the ID of the OTHER user in the conversation
+    private String userName; // This will be the name of the OTHER user
+    // private String userImage; // REMOVED: We will fetch this dynamically from the 'users' collection
     private String lastMessage;
-    private int unreadCount;
-    private String status;
     private long timestamp;
+    private int unreadCount;
 
-    // Default constructor required for Firebase
     public ChatOverview() {
+        // Required for Firebase
     }
 
-    // Constructor using userName directly
-    public ChatOverview(String userId, String userName, String lastMessage,
-                        int unreadCount, String status, long timestamp) {
+    // Constructor modified to remove userImage
+    public ChatOverview(String userId, String userName, String lastMessage, long timestamp, int unreadCount) {
         this.userId = userId;
         this.userName = userName;
         this.lastMessage = lastMessage;
-        this.unreadCount = unreadCount;
-        this.status = status;
         this.timestamp = timestamp;
+        this.unreadCount = unreadCount;
     }
 
     public String getUserId() {
@@ -39,6 +37,9 @@ public class ChatOverview {
         this.userName = userName;
     }
 
+    // REMOVED: public String getUserImage() and setUserImage()
+    // You will fetch this based on getUserId() when displaying the overview.
+
     public String getLastMessage() {
         return lastMessage;
     }
@@ -47,27 +48,19 @@ public class ChatOverview {
         this.lastMessage = lastMessage;
     }
 
-    public int getUnreadCount() {
-        return unreadCount;
-    }
-
-    public void setUnreadCount(int unreadCount) {
-        this.unreadCount = unreadCount;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(int unreadCount) {
+        this.unreadCount = unreadCount;
     }
 }
